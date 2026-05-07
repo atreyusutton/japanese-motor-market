@@ -7,7 +7,7 @@ export const metadata = {
 export default function FAQPage() {
   return (
     <SiteContainer className="py-12">
-      <h1 className="font-serif text-3xl sm:text-4xl font-bold text-brand-dark mb-8">
+      <h1 className="font-display text-3xl sm:text-4xl font-bold text-jmm-black mb-8">
         Frequently Asked Questions
       </h1>
     </SiteContainer>

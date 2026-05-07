@@ -22,11 +22,11 @@ export default function ContactPage() {
     <div className="bg-page py-16">
       <SiteContainer className="max-w-2xl space-y-6">
         <div className="space-y-3">
-          <p className="font-serif text-xs uppercase tracking-[0.25em] text-brand-gold">Correspondence</p>
-          <h1 className="font-serif text-4xl text-brand-dark">Write to the Japanese Motor Market team</h1>
+          <p className="font-display text-xs uppercase tracking-[0.25em] text-jmm-red">Correspondence</p>
+          <h1 className="font-display text-4xl text-jmm-black">Write to the Japanese Motor Market team</h1>
           <p className="text-xs uppercase tracking-[0.18em] text-text-muted">
             Prefer email? reach us at{" "}
-            <a href="mailto:atreyusutton@proton.me" className="text-brand-dark underline underline-offset-4">
+            <a href="mailto:atreyusutton@proton.me" className="text-jmm-black underline underline-offset-4">
               atreyusutton@proton.me
             </a>
           </p>

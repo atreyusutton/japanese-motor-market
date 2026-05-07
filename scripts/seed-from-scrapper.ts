@@ -227,7 +227,13 @@ async function main() {
     const location = locationFromCountry(raw.country_code, raw.essentials)
     const { options, mods } = essentialsToText(raw.essentials)
 
-    const isSold = Boolean(raw.sold_text)
+    // BaT data is all completed auctions (every row has sold_text), but we
+    // want a fake JMM marketplace that mostly looks "for sale". Distribute:
+    // ~75% active, ~20% sold, ~5% draft.
+    const r = Math.random()
+    const status: "active" | "sold" | "draft" =
+      r < 0.05 ? "draft" : r < 0.25 ? "sold" : "active"
+
     const askingPrice = typeof raw.current_bid === "number" && raw.current_bid > 0
       ? raw.current_bid
       : randInt(8_000, 120_000)
@@ -240,8 +246,8 @@ async function main() {
     const data = {
       publicId: createShortId(),
       sellerId,
-      listingStatus: (isSold ? "sold" : "active") as "sold" | "active",
-      publishedAt: created,
+      listingStatus: status,
+      publishedAt: status === "draft" ? null : created,
       featured: Math.random() < 0.12,
       year,
       make,
