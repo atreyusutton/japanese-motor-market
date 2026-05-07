@@ -52,11 +52,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${oswald.variable} ${inter.variable} ${notoSerifJp.variable} min-h-screen bg-page text-text-main font-sans antialiased`}
-        >
+    <html lang="en">
+      <body
+        className={`${oswald.variable} ${inter.variable} ${notoSerifJp.variable} min-h-screen bg-page text-text-main font-sans antialiased`}
+      >
+        <ClerkProvider>
           <DisclaimerGate>
             <div className="relative flex min-h-screen flex-col">
               <Header />
@@ -64,8 +64,8 @@ export default function RootLayout({
               <Footer />
             </div>
           </DisclaimerGate>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   )
 }

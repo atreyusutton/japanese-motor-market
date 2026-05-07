@@ -15,6 +15,10 @@
  * Dry:  pnpm seed:dry     (no DB writes, no Cloudflare uploads)
  */
 
+import { config as loadDotenv } from "dotenv"
+loadDotenv({ path: ".env.local" })
+loadDotenv({ path: ".env" })
+
 import { PrismaClient, Prisma } from "@prisma/client"
 import { init } from "@paralleldrive/cuid2"
 import fs from "node:fs"
@@ -98,6 +102,7 @@ function parseTitle(title: string): { year?: number; make?: string; model?: stri
   const KNOWN_MAKES = [
     "Toyota", "Nissan", "Honda", "Mazda", "Subaru", "Mitsubishi", "Suzuki",
     "Lexus", "Acura", "Infiniti", "Daihatsu", "Isuzu",
+    "Yamaha", "Kawasaki", "Datsun", "Toyopet", "Mitsuoka", "Hino",
   ]
   const remainder = year ? title.replace(yearMatch![0], "").trim() : title.trim()
   const make = KNOWN_MAKES.find((m) => remainder.toLowerCase().includes(m.toLowerCase()))
@@ -153,6 +158,7 @@ async function uploadToCloudflare(filePath: string): Promise<string | null> {
   })
   const fd = new FormData()
   fd.append("file", file)
+  fd.append("metadata", JSON.stringify({ project: "jmm", source: "seed" }))
 
   const res = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/images/v1`,
