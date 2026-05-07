@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed-from-scrapper.ts",
-    "seed:dry": "tsx scripts/seed-from-scrapper.ts --dry"
+    "seed:dry": "tsx scripts/seed-from-scrapper.ts --dry",
+    "fix:covers": "tsx scripts/fix-cover-images.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.16.0",

@@ -143,6 +143,56 @@ function essentialsToText(essentials: any): { options: string; mods: string } {
   return { options, mods }
 }
 
+async function uploadBufferToCloudflare(
+  buffer: Uint8Array,
+  filename: string,
+  contentType: string
+): Promise<string | null> {
+  if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
+    if (DRY) return `dry-run-${filename}`
+    console.warn("⚠ Missing CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN — skipping image upload")
+    return null
+  }
+  const file = new File([buffer], filename, { type: contentType })
+  const fd = new FormData()
+  fd.append("file", file)
+  fd.append("metadata", JSON.stringify({ project: "jmm", source: "seed" }))
+
+  const res = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/images/v1`,
+    { method: "POST", headers: { Authorization: `Bearer ${CF_API_TOKEN}` }, body: fd as any }
+  )
+  const json: any = await res.json()
+  if (!json.success) {
+    console.error("CF upload failed:", json.errors)
+    return null
+  }
+  return json.result.id as string
+}
+
+async function uploadUrlToCloudflare(url: string): Promise<string | null> {
+  if (DRY) return `dry-run-url-${url.slice(-20)}`
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+      },
+    })
+    if (!res.ok) {
+      console.warn(`Failed to fetch ${url}: ${res.status}`)
+      return null
+    }
+    const buf = new Uint8Array(await res.arrayBuffer())
+    const filename = url.split("/").pop()?.split("?")[0] || "cover.jpg"
+    const contentType = res.headers.get("content-type") || "image/jpeg"
+    return uploadBufferToCloudflare(buf, filename, contentType)
+  } catch (e) {
+    console.warn(`Failed to upload from URL ${url}:`, (e as Error).message)
+    return null
+  }
+}
+
 async function uploadToCloudflare(filePath: string): Promise<string | null> {
   if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
     if (DRY) return `dry-run-${path.basename(filePath)}`
@@ -279,11 +329,26 @@ async function main() {
       continue
     }
 
-    // Upload images (cap at 12 per listing to keep CF cost reasonable)
-    const imagePaths: string[] = (raw.image_paths || []).slice(0, 12)
+    // Upload images: cover (from BaT URL — front-3/4 hero) first, then gallery.
+    // Cap total at 12 per listing to keep CF storage reasonable.
     const mediaCreates: Prisma.ListingMediaCreateWithoutListingInput[] = []
-    for (let i = 0; i < imagePaths.length; i++) {
-      const rel = imagePaths[i]
+    let sortOrder = 0
+
+    if (raw.cover_image_url && typeof raw.cover_image_url === "string") {
+      const coverId = await uploadUrlToCloudflare(raw.cover_image_url)
+      if (coverId) {
+        mediaCreates.push({
+          type: "image",
+          provider: "cloudflare_images",
+          providerId: coverId,
+          sortOrder: sortOrder++,
+          isCover: true,
+        })
+      }
+    }
+
+    const imagePaths: string[] = (raw.image_paths || []).slice(0, 12 - mediaCreates.length)
+    for (const rel of imagePaths) {
       const abs = path.join(baseDir, rel)
       if (!fs.existsSync(abs)) continue
       const id = await uploadToCloudflare(abs)
@@ -292,8 +357,8 @@ async function main() {
         type: "image",
         provider: "cloudflare_images",
         providerId: id,
-        sortOrder: i,
-        isCover: i === 0,
+        sortOrder: sortOrder++,
+        isCover: mediaCreates.length === 0, // fallback if cover URL fetch failed
       })
     }
 
