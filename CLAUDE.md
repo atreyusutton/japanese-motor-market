@@ -117,8 +117,18 @@ vercel --prod                  # production
 
 ## Open / deferred
 
+### ⚠ Urgent (security / reliability)
+- **Rotate Clerk live keys.** Both `pk_live_*` and `sk_live_*` were pasted into the chat transcript on 2026-05-07 during deploy setup. Treat as compromised. Dashboard → Production → API keys → regenerate both → re-run the Vercel Production env update + redeploy. (Done so far: keys are working in prod, but they're on borrowed time until rotation.)
+- **Finish remaining 4 Clerk DNS records** at Cloudflare (only `clerk` is set; `accounts`, `clkmail`, `clk._domainkey`, `clk2._domainkey` still pending). Without them, `accounts.japanesemotormarket.com` (hosted account portal) and Clerk-managed transactional email won't work. Sign-in itself works without these.
+
+### Backlog
 - **AI blog pipeline** — `BlogPost` model exists, `app/blog/` is scaffolded, generation isn't wired. Plan: Anthropic API + cron, weekly JDM news posts.
-- **Domain wiring** — `japanesemotormarket.com` to point at Vercel, Clerk allowed-origins to include the production domain.
 - **Contact form delivery** — `app/contact/page.tsx` currently `console.log`s submissions. Wire to Resend.
 - **FAQ / terms / privacy** — rebadged from CMM strings but bodies still have CMM-era flavor in places. Worth a manual rewrite pass.
 - **Pagination on /listings** — currently renders all active listings (~127). Will need pagination as listings grow.
+
+### Done (May 2026)
+- Vercel deploy linked to GitHub auto-deploy
+- DNS for apex + `www` + `clerk` subdomain pointing at Vercel/Clerk via Cloudflare (DNS-only, no proxy)
+- Production Clerk instance + live keys wired into Vercel Production env
+- `https://japanesemotormarket.com` returns HTTP 200
