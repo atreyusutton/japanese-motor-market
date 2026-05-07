@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingStatus {
+  active
+  draft
+  sold
+}
+
+enum TitleStatus {
+  clean
+  salvage
+  stolen
+  lien
+  flood
+}
+
+enum MediaType {
+  image
+  video
+}
+
+enum MediaProvider {
+  cloudflare_images
+  cloudflare_stream
+}
+
+enum ConditionGrade {
+  show_car
+  driver
+  it_runs
+  project
+}
+
+enum AdPlacement {
+  home
+  card
+  detail
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  publicId      String?   @unique @default(uuid())
+  clerkId       String?   @unique
+  username      String?   @unique
+  email         String    @unique
+  name          String?
+  phone         String?
+  image         String?
+  isAdmin       Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings      Listing[]
+  savedListings SavedListing[]
+
+  @@map("users")
+}
+
+model Listing {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique
+  sellerId Int
+  seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  listingStatus ListingStatus @default(draft)
+  publishedAt   DateTime?
+  featured      Boolean       @default(false)
+
+  year                  Int?
+  make                  String?
+  model                 String?
+  vehicleIdentifier     String?
+  mileage               Int?
+  location              String?
+  engine                String?
+  transmission          String?
+  exteriorColor         String?
+  interiorColorMaterial String?
+  askingPrice           Int?
+
+  optionsAndFeatures String?
+  modifications      String?
+
+  conditionGrade     ConditionGrade?
+  vehicleHistory     String?
+  maintenanceHistory String?
+  titleStatus        TitleStatus?
+  carfaxAvailable    Boolean?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  media         ListingMedia[]
+  savedListings SavedListing[]
+
+  @@map("listings")
+}
+
+model ListingMedia {
+  id        Int     @id @default(autoincrement())
+  listingId Int
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  type       MediaType
+  provider   MediaProvider
+  providerId String
+
+  sortOrder Int
+  isCover   Boolean @default(false)
+  altText   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("listing_media")
+}
+
+model SavedListing {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId Int
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("saved_listings")
+}
+
+model Ad {
+  id             Int         @id @default(autoincrement())
+  name           String
+  placement      AdPlacement
+  url            String
+  desktopImageId String
+  mobileImageId  String
+  active         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([placement, active])
+  @@map("ads")
+}
+
+model Event {
+  id         Int      @id @default(autoincrement())
+  title      String
+  shortTitle String?
+  date       DateTime
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active, date])
+  @@map("events")
+}
+
+model BlogPost {
+  id           Int       @id @default(autoincrement())
+  slug         String    @unique
+  title        String
+  excerpt      String?
+  body         String    @db.Text
+  coverImageId String?
+  authorName   String?
+  publishedAt  DateTime?
+  aiGenerated  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([publishedAt])
+  @@map("blog_posts")
+}

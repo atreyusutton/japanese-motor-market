@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: var(--font-oswald), "Oswald", "Arial Narrow", sans-serif;
+  --font-jp: var(--font-noto-serif-jp), "Noto Serif JP", serif;
+
+  /* Core palette: Hinomaru red, deep black, cool grey, white */
+  --color-jmm-red: #BC002D;
+  --color-jmm-red-soft: #d11a3f;
+  --color-jmm-black: #111111;
+  --color-jmm-grey: #6D6D6D;
+  --color-jmm-grey-soft: #a3a3a3;
+  --color-jmm-line: #E5E5E5;
+  --color-jmm-paper: #FAFAFA;
+
+  /* Semantic tokens used across the UI */
+  --color-page: #FAFAFA;
+  --color-page-alt: #F2F2F2;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #111111;
+  --color-background: #FAFAFA;
+  --color-foreground: #111111;
+  --color-text-main: #111111;
+  --color-text-muted: #6D6D6D;
+  --color-text-inverse: #FAFAFA;
+  --color-border-soft: #E5E5E5;
+  --color-border-strong: #111111;
+  --color-primary: #BC002D;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #111111;
+  --color-secondary-foreground: #FFFFFF;
+  --color-muted: #F2F2F2;
+  --color-muted-foreground: #6D6D6D;
+  --color-border: #E5E5E5;
+  --color-accent: #BC002D;
+  --color-accent-foreground: #FFFFFF;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #111111;
+
+  /* Tighter, sharper corners — more JDM/street than soft/luxury */
+  --radius-sm: 0px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 4px;
+}
+
+:root {
+  --radius-base: 2px;
+}
+
+@layer base {
+  * {
+    @apply border-border-soft;
+  }
+  body {
+    @apply bg-page text-text-main font-sans antialiased;
+    letter-spacing: 0.005em;
+  }
+  h1, h2, h3, h4, h5 {
+    @apply font-display uppercase tracking-[0.02em] text-jmm-black scroll-mt-24;
+    font-weight: 600;
+  }
+  h1 { letter-spacing: 0.01em; }
+  p { @apply leading-relaxed text-text-main; }
+  .label-text {
+    @apply text-[0.65rem] uppercase tracking-[0.18em] font-bold text-text-muted;
+  }
+  .kanji {
+    font-family: var(--font-jp);
+    font-weight: 700;
+  }
+  /* Subtle 1px borders + sharp corners on imagery & cards — JDM feel */
+  .jmm-card {
+    @apply bg-card border border-border-soft;
+  }
+  .jmm-frame {
+    @apply border border-border-soft;
+  }
+}
