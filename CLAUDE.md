@@ -1,3 +1,27 @@
+> ## BLOCKED: Cloudflare tokens were deleted, 17 Sep 2026
+>
+> Every Cloudflare API token on the account was deleted. Image upload and
+> cleanup in this app will fail with a 500 until new ones exist. Fix this
+> before doing any more work here, or you will be debugging the wrong thing.
+>
+> Recreate at https://dash.cloudflare.com/profile/api-tokens as a **custom
+> token**, `Account -> Cloudflare Images -> Edit`, scoped to your account only:
+>
+> | Variable | What it is |
+> |---|---|
+> | `CLOUDFLARE_API_TOKEN` | used by `app/api/upload/route.ts` |
+> | `CLOUDFLARE_IMAGES_TOKEN` | used by the actions and scripts |
+> | `CLOUDFLARE_ACCOUNT_ID` | account id, not a secret |
+> | `CLOUDFLARE_ACCOUNT_HASH` | images delivery hash, not a secret |
+> | `NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH` | same hash, exposed on purpose |
+> | `RESEND_API_KEY` | unrelated, but also check it still works |
+>
+> Put them in `.env.local`, which is gitignored. Do not prefix a secret with
+> `NEXT_PUBLIC_`: that inlines it into the browser bundle. This app already
+> reads the tokens server side only, which is correct. Keep it that way.
+>
+> Delete this block once the tokens are back and an upload succeeds.
+
 # Japanese Motor Market — CLAUDE.md
 
 Free-to-list, free-to-join marketplace for JDM and Japanese-made vehicles in the United States. Site identity: **旧車** (kyūsha). Production domain: `japanesemotormarket.com`.
